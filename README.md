@@ -167,3 +167,6 @@ node src/apply.mjs --rollback fixture src/rules.json   # 回滚
 ## 许可
 
 MIT，见 LICENSE。
+
+`package.json` 里的 `private: true` 只是 npm 的发布保护（阻止 `npm publish`
+误把本样例发到公共 registry），与本仓库的公开性无关。
