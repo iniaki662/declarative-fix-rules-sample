@@ -1,5 +1,7 @@
 # 声明式修复规则与行为级验收框架（可公开样例）
 
+[![CI](https://github.com/iniaki662/declarative-fix-rules-sample/actions/workflows/ci.yml/badge.svg)](https://github.com/iniaki662/declarative-fix-rules-sample/actions/workflows/ci.yml)
+
 面向**运行时目标**的声明式修复机制，以及配套的离线行为级验收方法。
 
 本仓库是一个**自造样例**：目标代码是本仓库 `fixture-pristine/` 下的原创演示文件，
