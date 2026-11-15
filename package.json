@@ -1,0 +1,16 @@
+{
+  "name": "declarative-fix-rules-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "声明式修复规则与行为级验收框架的可公开样例（自造目标，零第三方字节）",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "demo": "bash demo.sh",
+    "criteria": "node criteria/demo.mjs",
+    "test": "bash demo.sh && node criteria/demo.mjs"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "version": "1.0.0",
+  "note": "示范规则集。目标为 fixture/ 下的自造样例代码，与任何第三方发行件无关，可公开。appliedWhen 的语义是「已应用标记」：标记串全部出现在目标里即视为该 edit 已生效并跳过，用于幂等与规则叠加稳定性，不是应用的前置条件。",
+  "rules": [
+    {
+      "id": "pending-phase-render",
+      "kind": "edits",
+      "desc": "任务处于挂起阶段时进入 pending 相位并保留占位渲染，不再退化成整行空白的死界面",
+      "locator": {
+        "dir": "chunks",
+        "mustContainAll": [
+          "lastError",
+          "hasError",
+          "draftInput",
+          "runtimeStatus"
+        ]
+      },
+      "edits": [
+        {
+          "id": "state-projection",
+          "find": "draftInput:/^\\/draft(?:\\s|$)/iu.test(c.trimStart()),",
+          "replace": "draftInput:/^\\/draft(?:\\s|$)/iu.test(c.trimStart()),pendingPhase:this.banner?.task?.status===\"pending\",",
+          "appliedWhen": [
+            "pendingPhase:this.banner?.task?.status===\"pending\""
+          ],
+          "note": "把挂起状态投影进相位机入参。replace 以 find 为前缀 ⇒ find 会在 replace 内部残留，不能用「find 计数 == 0」判定已应用，须靠 appliedWhen 标记命中。"
+        },
+        {
+          "id": "phase-keep-alive",
+          "find": "if (this.state.hasError) return this.renderBlankRow();",
+          "replace": "if (this.state.hasError && !this.state.pendingPhase) return this.renderBlankRow();",
+          "appliedWhen": [],
+          "note": "形态 A：replace 不含 find，find 应清零，靠 replace 形态命中判定。appliedWhen 留空 —— 标记串须是本 edit 自己 replace 引入的，挪用别的 edit 的标记会让本 edit 被误判成「已应用」而跳过。"
+        }
+      ]
+    },
+    {
+      "id": "remote-call-timeout-readout",
+      "kind": "edits",
+      "desc": "外部调用超时后给出可判的读数，而不是静默丢弃该轮",
+      "locator": {
+        "dir": "chunks",
+        "mustContainAll": [
+          "callTimeout",
+          "abortSignal",
+          "callOutcome"
+        ]
+      },
+      "edits": [
+        {
+          "id": "timeout-observable",
+          "find": "if (signal.aborted) return null;",
+          "replace": "if (signal.aborted) return { outcome:\"remote_timeout\", observable:true, abortReason:\"signal_aborted\" };",
+          "appliedWhen": [],
+          "note": "形态 A：replace 不含 find，find 应清零，靠 replace 形态命中判定已应用。"
+        }
+      ]
+    },
+    {
+      "id": "slot-owner-liveness",
+      "kind": "edits",
+      "desc": "槽位持有进程失活时按状态机回收，而不是永久占用槽位",
+      "locator": {
+        "dir": "chunks",
+        "mustContainAll": [
+          "ownerPid",
+          "livenessProbe",
+          "slotState"
+        ]
+      },
+      "edits": [
+        {
+          "id": "reclaim-dead-owner",
+          "find": "if (owner.livenessProbe.isAlive()) return task.slotState;",
+          "replace": "if (owner.livenessProbe.isAlive()) return task.slotState; task.slotState=\"reclaimed_dead_owner\";",
+          "appliedWhen": [],
+          "note": "形态 B：replace 以 find 为前缀，find 在 replace 内部残留属正常，靠 replace 形态命中判定。"
+        }
+      ]
+    }
+  ]
+}

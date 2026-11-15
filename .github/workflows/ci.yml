@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 规则应用机制：缺陷态全 FAIL → 应用 → 全 PASS → 幂等 → 回滚 → 恢复全 FAIL
+      # 六段演示的失败段是预期内的，脚本自身以 0 退出。
+      - name: 声明式修复规则六段演示
+        run: bash demo.sh
+
+      # 评测可信度披露器：14 条断言必须全绿
+      - name: 评测可信度披露器
+        run: node criteria/demo.mjs
